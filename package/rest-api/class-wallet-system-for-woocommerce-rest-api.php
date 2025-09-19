@@ -205,34 +205,148 @@ class Wallet_System_For_Woocommerce_Rest_Api extends WP_REST_Controller {
 			)
 		);
 
-		// Show transactions of particular user.
+		// For getting particular user wallet details by UUID - GET
 		register_rest_route(
 			$this->namespace,
-			$this->base_url . 'transactions/(?P<id>\d+)',
+			$this->base_url . '(?P<uuid>[a-fA-F0-9\-]{36})',
 			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array($this, 'wps_wsfw_user_wallet_balance'),
+				'permission_callback' => array($this, 'wps_wsfw_get_permission_check'),
 				'args'                => array(
-					'id'              => array(
-						'description' => __( 'Unique user id of user.', 'wallet-system-for-woocommerce' ),
-						'type'        => 'integer',
+					'uuid' => array(
+						'description' => __('Unique avatar UUID of user.', 'wallet-system-for-woocommerce'),
+						'type'        => 'string',
 						'required'    => true,
+						'validate_callback' => array($this, 'validate_uuid'),
 					),
 					'consumer_key'    => array(
-						'description' => __( 'Merchant Consumer Key.', 'wallet-system-for-woocommerce' ),
+						'description' => __('Merchant Consumer Key.', 'wallet-system-for-woocommerce'),
 						'type'        => 'string',
 						'required'    => true,
 					),
 					'consumer_secret' => array(
-						'description' => __( 'Merchant Consumer Secret', 'wallet-system-for-woocommerce' ),
+						'description' => __('Merchant Consumer Secret', 'wallet-system-for-woocommerce'),
 						'type'        => 'string',
 						'required'    => true,
 					),
-					'context'         => array(
-						'default' => 'view',
+				),
+			)
+		);
+		
+				// For updating wallet by UUID - PUT
+		register_rest_route(
+			$this->namespace,
+			$this->base_url . '(?P<uuid>[a-fA-F0-9\-]{36})',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array($this, 'wps_wsfw_edit_wallet_balance'),
+				'permission_callback' => array($this, 'wps_wsfw_update_item_permissions_check'),
+				'args'                => array(
+					'uuid' => array(
+						'description' => __('Unique avatar UUID of user.', 'wallet-system-for-woocommerce'),
+						'type'        => 'string',
+						'required'    => true,
+						'validate_callback' => array($this, 'validate_uuid'),
+					),
+					'consumer_key'       => array(
+						'description' => __('Merchant Consumer Key.', 'wallet-system-for-woocommerce'),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'consumer_secret'    => array(
+						'description' => __('Merchant Consumer Secret', 'wallet-system-for-woocommerce'),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'amount'             => array(
+						'description' => __('Wallet transaction amount.', 'wallet-system-for-woocommerce'),
+						'type'        => 'number',
+						'required'    => true,
+						'minimum'     => 0.01,
+					),
+					'action'             => array(
+						'type'        => 'string',
+						'description' => __('Wallet transaction type.', 'wallet-system-for-woocommerce'),
+						'required'    => true,
+						'enum'        => array('credit', 'debit'),
+					),
+					'transaction_detail' => array(
+						'type'        => 'string',
+						'description' => __('Wallet transaction details.', 'wallet-system-for-woocommerce'),
+						'required'    => true,
+					),
+					'payment_method'     => array(
+						'type'        => 'string',
+						'description' => __('Payment method used.', 'wallet-system-for-woocommerce'),
+					),
+					'note'               => array(
+						'description' => __('Note during wallet transfer.', 'wallet-system-for-woocommerce'),
+						'type'        => 'string',
+					),
+					'order_id'           => array(
+						'description' => __('If wallet amount is deducted when wallet used as payment gateway.', 'wallet-system-for-woocommerce'),
+						'type'        => 'integer',
 					),
 				),
+			)
+		);
+
+
+		// Show transactions of particular user by ID
+		register_rest_route(
+			$this->namespace,
+			$this->base_url . 'transactions/(?P<id>\d+)',
+			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'wps_wsfw_user_wallet_transactions' ),
-				'permission_callback' => array( $this, 'wps_wsfw_get_permission_check' ),
+				'callback'            => array($this, 'wps_wsfw_user_wallet_transactions'),
+				'permission_callback' => array($this, 'wps_wsfw_get_permission_check'),
+				'args'                => array(
+					'id' => array(
+						'description' => __('Unique user id of user.', 'wallet-system-for-woocommerce'),
+						'type'        => 'integer',
+						'required'    => true,
+					),
+					'consumer_key'    => array(
+						'description' => __('Merchant Consumer Key.', 'wallet-system-for-woocommerce'),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'consumer_secret' => array(
+						'description' => __('Merchant Consumer Secret', 'wallet-system-for-woocommerce'),
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
+			)
+		);
+
+		// Show transactions of particular user by UUID
+		register_rest_route(
+			$this->namespace,
+			$this->base_url . 'transactions/(?P<uuid>[a-fA-F0-9\-]{36})',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array($this, 'wps_wsfw_user_wallet_transactions'),
+				'permission_callback' => array($this, 'wps_wsfw_get_permission_check'),
+				'args'                => array(
+					'uuid' => array(
+						'description' => __('Unique avatar UUID of user.', 'wallet-system-for-woocommerce'),
+						'type'        => 'string',
+						'required'    => true,
+						'validate_callback' => array($this, 'validate_uuid'),
+					),
+					'consumer_key'    => array(
+						'description' => __('Merchant Consumer Key.', 'wallet-system-for-woocommerce'),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'consumer_secret' => array(
+						'description' => __('Merchant Consumer Secret', 'wallet-system-for-woocommerce'),
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
 			)
 		);
 	}
@@ -277,6 +391,25 @@ class Wallet_System_For_Woocommerce_Rest_Api extends WP_REST_Controller {
 		}
 		return false;
 	}
+	
+	/**
+	 * Validate UUID format
+	 *
+	 * @param mixed $value The value to validate.
+	 * @param WP_REST_Request $request The request object.
+	 * @param string $param The parameter name.
+	 * @return bool|WP_Error
+	 */
+	public function validate_uuid($value, $request, $param) {
+		if (!preg_match('/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/', $value)) {
+			return new WP_Error(
+				'rest_invalid_param',
+				sprintf(__('%s is not a valid UUID.', 'wallet-system-for-woocommerce'), $param),
+				array('status' => 400)
+			);
+		}
+		return true;
+	}
 
 	/**
 	 * Returns users details
@@ -303,18 +436,32 @@ class Wallet_System_For_Woocommerce_Rest_Api extends WP_REST_Controller {
 	 * @param Array $request All information related with the api request containing in this array.
 	 * @return Array
 	 */
-	public function wps_wsfw_user_wallet_balance( $request ) {
+	public function wps_wsfw_user_wallet_balance($request) {
 		require_once WALLET_SYSTEM_FOR_WOOCOMMERCE_DIR_PATH . 'package/rest-api/version1/class-wallet-system-for-woocommerce-api-process.php';
-		$wps_wsfw_api_obj     = new Wallet_System_For_Woocommerce_Api_Process();
-		$parameters           = $request->get_params();
-		$wps_wsfw_resultsdata = $wps_wsfw_api_obj->get_wallet_balance( $parameters['id'] );
-		if ( is_array( $wps_wsfw_resultsdata ) && isset( $wps_wsfw_resultsdata['status'] ) && 200 === $wps_wsfw_resultsdata['status'] ) {
-			unset( $wps_wsfw_resultsdata['status'] );
-			$wps_wsfw_response = new WP_REST_Response( $wps_wsfw_resultsdata['data'], 200 );
-		} else {
-			$wps_wsfw_response = new WP_Error( $wps_wsfw_resultsdata );
+		
+		$parameters = $request->get_params();
+		$user_id = $this->get_user_id_from_params($parameters);
+		
+		if (is_wp_error($user_id)) {
+			return new WP_REST_Response(array(
+				'status' => 'error',
+				'message' => $user_id->get_error_message(),
+				'code' => $user_id->get_error_code()
+			), $user_id->get_error_data()['status'] ?? 400);
 		}
-		return $wps_wsfw_response;
+		
+		$wps_wsfw_api_obj = new Wallet_System_For_Woocommerce_Api_Process();
+		$wps_wsfw_resultsdata = $wps_wsfw_api_obj->get_wallet_balance($user_id);
+		
+		if (is_array($wps_wsfw_resultsdata) && isset($wps_wsfw_resultsdata['status']) && 200 === $wps_wsfw_resultsdata['status']) {
+			unset($wps_wsfw_resultsdata['status']);
+			return new WP_REST_Response($wps_wsfw_resultsdata, 200);
+		} else {
+			return new WP_REST_Response(array(
+				'status' => 'error',
+				'message' => is_wp_error($wps_wsfw_resultsdata) ? $wps_wsfw_resultsdata->get_error_message() : __('Failed to retrieve wallet balance.', 'wallet-system-for-woocommerce')
+			), 500);
+		}
 	}
 
 	/**
@@ -323,22 +470,42 @@ class Wallet_System_For_Woocommerce_Rest_Api extends WP_REST_Controller {
 	 * @param Array $request All information related with the api request containing in this array.
 	 * @return Array
 	 */
-	public function wps_wsfw_edit_wallet_balance( $request ) {
+	public function wps_wsfw_edit_wallet_balance($request) {
 		require_once WALLET_SYSTEM_FOR_WOOCOMMERCE_DIR_PATH . 'package/rest-api/version1/class-wallet-system-for-woocommerce-api-process.php';
+		
+		$parameters = $request->get_params();
+		$user_id = $this->get_user_id_from_params($parameters);
+		
+		if (is_wp_error($user_id)) {
+			return new WP_REST_Response(array(
+				'status' => 'error',
+				'message' => $user_id->get_error_message(),
+				'code' => $user_id->get_error_code()
+			), $user_id->get_error_data()['status'] ?? 400);
+		}
+		
+		$parameters['id'] = $user_id;
+		
 		$wps_wsfw_api_obj = new Wallet_System_For_Woocommerce_Api_Process();
-		$parameters       = $request->get_params();
-		if ( isset( $parameters['amount'] ) && ! empty( $parameters['amount'] ) ) {
-			$wps_wsfw_resultsdata = $wps_wsfw_api_obj->update_wallet_balance( $parameters );
-			if ( is_array( $wps_wsfw_resultsdata ) && isset( $wps_wsfw_resultsdata['status'] ) && 200 === $wps_wsfw_resultsdata['status'] ) {
-				unset( $wps_wsfw_resultsdata['status'] );
-				$wps_wsfw_response = new WP_REST_Response( $wps_wsfw_resultsdata['data'], 200 );
+		
+		if (isset($parameters['amount']) && !empty($parameters['amount'])) {
+			$wps_wsfw_resultsdata = $wps_wsfw_api_obj->update_wallet_balance($parameters);
+			
+			if (is_array($wps_wsfw_resultsdata) && isset($wps_wsfw_resultsdata['status']) && 200 === $wps_wsfw_resultsdata['status']) {
+				unset($wps_wsfw_resultsdata['status']);
+				return new WP_REST_Response($wps_wsfw_resultsdata, 200);
 			} else {
-				$wps_wsfw_response = new WP_Error( $wps_wsfw_resultsdata );
+				return new WP_REST_Response(array(
+					'status' => 'error',
+					'message' => is_wp_error($wps_wsfw_resultsdata) ? $wps_wsfw_resultsdata->get_error_message() : __('Failed to update wallet balance.', 'wallet-system-for-woocommerce')
+				), 500);
 			}
 		} else {
-			$wps_wsfw_response = new WP_REST_Response( array( 'response' => 'Amount should be greater than 0' ), 401 );
+			return new WP_REST_Response(array(
+				'status' => 'error',
+				'message' => __('Amount should be greater than 0', 'wallet-system-for-woocommerce')
+			), 400);
 		}
-		return $wps_wsfw_response;
 	}
 
 	/**
@@ -347,18 +514,72 @@ class Wallet_System_For_Woocommerce_Rest_Api extends WP_REST_Controller {
 	 * @param Array $request All information related with the api request containing in this array.
 	 * @return Array
 	 */
-	public function wps_wsfw_user_wallet_transactions( $request ) {
+	public function wps_wsfw_user_wallet_transactions($request) {
 		require_once WALLET_SYSTEM_FOR_WOOCOMMERCE_DIR_PATH . 'package/rest-api/version1/class-wallet-system-for-woocommerce-api-process.php';
-		$wps_wsfw_api_obj     = new Wallet_System_For_Woocommerce_Api_Process();
-		$parameters           = $request->get_params();
-		$wps_wsfw_resultsdata = $wps_wsfw_api_obj->get_user_wallet_transactions( $parameters['id'] );
-		if ( is_array( $wps_wsfw_resultsdata ) && isset( $wps_wsfw_resultsdata['status'] ) && 200 === $wps_wsfw_resultsdata['status'] ) {
-			unset( $wps_wsfw_resultsdata['status'] );
-			$wps_wsfw_response = new WP_REST_Response( $wps_wsfw_resultsdata['data'], 200 );
-		} else {
-			$wps_wsfw_response = new WP_Error( $wps_wsfw_resultsdata );
+		
+		$parameters = $request->get_params();
+		$user_id = $this->get_user_id_from_params($parameters);
+		
+		if (is_wp_error($user_id)) {
+			return new WP_REST_Response(array(
+				'status'  => 'error',
+				'message' => $user_id->get_error_message(),
+				'code'    => $user_id->get_error_code()
+			), $user_id->get_error_data()['status'] ?? 400);
 		}
-
-		return $wps_wsfw_response;
+		
+		$wps_wsfw_api_obj = new Wallet_System_For_Woocommerce_Api_Process();
+		$wps_wsfw_resultsdata = $wps_wsfw_api_obj->get_user_wallet_transactions($user_id);
+		
+		if (is_array($wps_wsfw_resultsdata) && isset($wps_wsfw_resultsdata['status']) && 200 === $wps_wsfw_resultsdata['status']) {
+			unset($wps_wsfw_resultsdata['status']);
+			return new WP_REST_Response($wps_wsfw_resultsdata, 200);
+		} else {
+			return new WP_REST_Response(array(
+				'status'  => 'error',
+				'message' => is_wp_error($wps_wsfw_resultsdata) ? $wps_wsfw_resultsdata->get_error_message() : __('Failed to retrieve wallet transactions.', 'wallet-system-for-woocommerce')
+			), 500);
+		}
+	}
+	
+	/**
+	 * Get user ID from either ID or UUID parameters
+	 *
+	 * @param array $parameters Request parameters
+	 * @return int|WP_Error User ID or error
+	 */
+	private function get_user_id_from_params($parameters) {
+		global $wpdb;
+		
+		if (isset($parameters['id']) && !empty($parameters['id'])) {
+			$user_id = intval($parameters['id']);
+			// Verify user exists
+			if (get_userdata($user_id)) {
+				return $user_id;
+			}
+			return new WP_Error('user_not_found', __('No WordPress user found with this ID.', 'wallet-system-for-woocommerce'), array('status' => 404));
+		}
+		
+		if (isset($parameters['uuid']) && !empty($parameters['uuid'])) {
+			// Validate UUID format first
+			if (!preg_match('/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/', $parameters['uuid'])) {
+				return new WP_Error('invalid_uuid', __('Invalid UUID format.', 'wallet-system-for-woocommerce'), array('status' => 400));
+			}
+			
+			$user_id = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = 'w4os_uuid' AND meta_value = %s",
+					$parameters['uuid']
+				)
+			);
+			
+			if ($user_id) {
+				return intval($user_id);
+			}
+			
+			return new WP_Error('user_not_found', __('No WordPress user found for this avatar UUID.', 'wallet-system-for-woocommerce'), array('status' => 404));
+		}
+		
+		return new WP_Error('invalid_parameters', __('Either user ID or UUID must be provided.', 'wallet-system-for-woocommerce'), array('status' => 400));
 	}
 }
