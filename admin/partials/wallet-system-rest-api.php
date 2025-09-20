@@ -178,12 +178,25 @@ if ( isset( $_GET['action'] ) && ( 'delete_api_keys' === $_GET['action'] ) ) {
 	esc_html_e( '/wp-json/wsfw-route/v1/wallet/1?consumer_key=XXXX&consumer_secret=XXXX', 'wallet-system-for-woocommerce' );
 	?>
 	</p>
-	<p><?php esc_html_e( 'JSON response example:', 'wallet-system-for-woocommerce' ); ?></p>
+	<h5><?php esc_html_e( 'Retrieve particular user wallet amount by UUID', 'wallet-system-for-woocommerce' ); ?></h5> 
+	<p><?php esc_html_e( 'Retrieves wallet balance of an existing user using their UUID. HTTP request is:', 'wallet-system-for-woocommerce' ); ?></p>
+	<p><?php echo '<strong><code>GET {home_url}/wp-json/wsfw-route/v1/wallet/&lt;uuid&gt;?consumer_key=XXXX&consumer_secret=XXXX</code></strong>' . esc_html__( ' where &lt;uuid&gt; is the UUID of the user.', 'wallet-system-for-woocommerce' ); ?><p>
+	<p>
+	<?php
+	esc_html_e( 'Example : ', 'wallet-system-for-woocommerce' );
+	echo esc_html( $store_url );
+	esc_html_e( '/wp-json/wsfw-route/v1/wallet/550e8400-e29b-41d4-a716-446655440000?consumer_key=XXXX&consumer_secret=XXXX', 'wallet-system-for-woocommerce' );
+	?>
+	</p>
+	<p><?php esc_html_e( 'JSON response example for both ID and UUID endpoints:', 'wallet-system-for-woocommerce' ); ?></p>
 
 	<?php
 	echo '<pre>
-
-    "23.34"
+	{
+		"wallet_balance": "23.34",
+		"user_id": 1,
+		"user_name": "username"
+	}
 	</pre>';
 	?>
 	<h5><?php esc_html_e( 'Retrieve particular user wallet transactions', 'wallet-system-for-woocommerce' ); ?></h5> 
@@ -196,7 +209,17 @@ if ( isset( $_GET['action'] ) && ( 'delete_api_keys' === $_GET['action'] ) ) {
 	esc_html_e( '/wp-json/wsfw-route/v1/wallet/transactions/1?consumer_key=XXXX&consumer_secret=XXXX', 'wallet-system-for-woocommerce' );
 	?>
 	</p>
-	<p><?php esc_html_e( 'JSON response example:', 'wallet-system-for-woocommerce' ); ?></p>
+	<h5><?php esc_html_e( 'Retrieve particular user wallet transactions by UUID', 'wallet-system-for-woocommerce' ); ?></h5> 
+	<p><?php esc_html_e( 'Retrieves all transactions related to wallet of user using their UUID. HTTP request is:', 'wallet-system-for-woocommerce' ); ?></p>
+	<p><?php echo '<strong><code>GET {home_url}/wp-json/wsfw-route/v1/wallet/transactions/&lt;uuid&gt;?consumer_key=XXXX&consumer_secret=XXXX</code></strong>' . esc_html__( ' where &lt;uuid&gt; is the UUID of the user.', 'wallet-system-for-woocommerce' ); ?><p>
+	<p>
+	<?php
+	esc_html_e( 'Example : ', 'wallet-system-for-woocommerce' );
+	echo esc_html( $store_url );
+	esc_html_e( '/wp-json/wsfw-route/v1/wallet/transactions/550e8400-e29b-41d4-a716-446655440000?consumer_key=XXXX&consumer_secret=XXXX', 'wallet-system-for-woocommerce' );
+	?>
+	</p>
+	<p><?php esc_html_e( 'JSON response example for both ID and UUID endpoints:', 'wallet-system-for-woocommerce' ); ?></p>
 	<?php
 	echo '<pre>
 
@@ -227,26 +250,42 @@ if ( isset( $_GET['action'] ) && ( 'delete_api_keys' === $_GET['action'] ) ) {
 	<h5><?php esc_html_e( 'Update wallet of user', 'wallet-system-for-woocommerce' ); ?></h5> 
 	<p><?php esc_html_e( 'This allow you to update(credit/debit) wallet of particular user. HTTP request is:', 'wallet-system-for-woocommerce' ); ?></p>
 	<p><?php echo '<strong><code>PUT {home_url}/wp-json/wsfw-route/v1/wallet/&lt;id&gt;</code></strong>' . esc_html__( ' where &lt;id&gt; is an user id of user.', 'wallet-system-for-woocommerce' ); ?></p>
+	<h5><?php esc_html_e( 'Update wallet of user by UUID', 'wallet-system-for-woocommerce' ); ?></h5> 
+	<p><?php esc_html_e( 'This allow you to update(credit/debit) wallet of particular user using their UUID. HTTP request is:', 'wallet-system-for-woocommerce' ); ?></p>
+	<p><?php echo '<strong><code>PUT {home_url}/wp-json/wsfw-route/v1/wallet/&lt;uuid&gt;</code></strong>' . esc_html__( ' where &lt;uuid&gt; is the UUID of the user.', 'wallet-system-for-woocommerce' ); ?></p>
 	<p><?php echo '<strong>' . esc_html__( 'Required Headers', 'wallet-system-for-woocommerce' ) . '</strong>'; ?></p>
 	<p><?php echo '<code>Content-Type: application/json</code>'; ?></p>
 	<p>
 	<?php
-	esc_html_e( 'Example : ', 'wallet-system-for-woocommerce' );
+	esc_html_e( 'Example for ID: ', 'wallet-system-for-woocommerce' );
 	echo esc_html( $store_url );
 	esc_html_e( '/wp-json/wsfw-route/v1/wallet/1', 'wallet-system-for-woocommerce' );
 	?>
 	</p>
 	<p>
 	<?php
+	esc_html_e( 'Example for UUID: ', 'wallet-system-for-woocommerce' );
+	echo esc_html( $store_url );
+	esc_html_e( '/wp-json/wsfw-route/v1/wallet/550e8400-e29b-41d4-a716-446655440000', 'wallet-system-for-woocommerce' );
+	?>
+	</p>
+	<p>
+	<?php
 	echo "<pre>
 
-    curl -X PUT -d 'amount=29&action=credit'";
+    curl -X PUT -H 'Content-Type: application/json' -d '{
+		\"amount\": 29,
+		\"action\": \"credit\",
+		\"consumer_key\": \"XXXX\",
+		\"consumer_secret\": \"XXXX\",
+		\"transaction_detail\": \"Wallet credited via API\",
+		\"payment_method\": \"API\",
+		\"note\": \"Credit transaction\"
+	}' '";
 	echo esc_html( $store_url );
-	echo "/wp-json/wsfw-route/v1/wallet/1' \
-    --header 'Content-Type: application/json'
+	echo "/wp-json/wsfw-route/v1/wallet/1'
 	</pre>";
 	?>
-
 	</p>
 	<p><strong><?php esc_html_e( 'Request Parameters', 'wallet-system-for-woocommerce' ); ?></strong></p>
 	<table class="wps-wsfw-rest-api-table">
@@ -261,12 +300,17 @@ if ( isset( $_GET['action'] ) && ( 'delete_api_keys' === $_GET['action'] ) ) {
 			<tr>
 				<td><?php esc_html_e( 'id', 'wallet-system-for-woocommerce' ); ?></td>
 				<td><?php esc_html_e( 'integer', 'wallet-system-for-woocommerce' ); ?></td>
-				<td><?php esc_html_e( 'Unique user id of user(required) will pass on url.', 'wallet-system-for-woocommerce' ); ?></td>
+				<td><?php esc_html_e( 'Unique user id of user(required for ID endpoint) will pass on url.', 'wallet-system-for-woocommerce' ); ?></td>
+			</tr>
+			<tr>
+				<td><?php esc_html_e( 'uuid', 'wallet-system-for-woocommerce' ); ?></td>
+				<td><?php esc_html_e( 'string', 'wallet-system-for-woocommerce' ); ?></td>
+				<td><?php esc_html_e( 'Unique UUID of user(required for UUID endpoint) will pass on url. Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', 'wallet-system-for-woocommerce' ); ?></td>
 			</tr>
 			<tr>
 				<td><?php esc_html_e( 'amount', 'wallet-system-for-woocommerce' ); ?></td>
 				<td><?php esc_html_e( 'number', 'wallet-system-for-woocommerce' ); ?></td>
-				<td><?php esc_html_e( 'Wallet transaction amount(required)', 'wallet-system-for-woocommerce' ); ?></td>
+				<td><?php esc_html_e( 'Wallet transaction amount(required). Minimum value: 0.01', 'wallet-system-for-woocommerce' ); ?></td>
 			</tr>
 			<tr>
 				<td><?php esc_html_e( 'action', 'wallet-system-for-woocommerce' ); ?></td>
@@ -309,7 +353,7 @@ if ( isset( $_GET['action'] ) && ( 'delete_api_keys' === $_GET['action'] ) ) {
 	<p>
 	<?php
 	echo '<strong>' . esc_html__( 'Note: ', 'wallet-system-for-woocommerce' ) . '</strong>';
-	esc_html_e( 'id is required in all api request.', 'wallet-system-for-woocommerce' );
+	esc_html_e( 'Either user ID or UUID must be provided in all API requests. UUIDs should be in the format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', 'wallet-system-for-woocommerce' );
 	?>
 	</p>
 	<p><?php esc_html_e( 'JSON response example:', 'wallet-system-for-woocommerce' ); ?></p>
